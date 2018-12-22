@@ -8,6 +8,10 @@
     mc:Ignorable="d"
     Background="#FF282828">
     <Grid>
+        <Grid x:Name="Popup_GRD" Background="#FF464646" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="40" Visibility="Collapsed">
+            <TextBlock x:Name="Popup_Text" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="14" Padding="0,10,0,0" Foreground="White"/>
+        </Grid>
+        
         <Grid x:Name="Chat_GRD" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -31,9 +35,7 @@
                 <Image Source="Assets/send.png" Stretch="UniformToFill"/>
             </Button>
         </Grid>
-        
 
-        
         <Grid x:Name="Connect_GRD" Visibility="Visible">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -60,10 +62,6 @@
                 <TextBox x:Name="UserName_TB" Grid.Row="3" PlaceholderText="user name" BorderThickness="1" BorderBrush="#662D2D2D" MaxLength="20" Foreground="White" Background="#66141414"/>
                 <Button x:Name="Connect_BTN" Grid.Row="4" Content="connect" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="14" Background="#FF2D2D2D" Click="_Connect" Foreground="White"/>
             </Grid>
-        </Grid>
-
-        <Grid x:Name="Popup_GRD" Background="#FF464646" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="40" Visibility="Collapsed">
-            <TextBlock x:Name="Popup_Text" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="14" Padding="0,10,0,0" Foreground="White"/>
         </Grid>
     </Grid>
 </Page>

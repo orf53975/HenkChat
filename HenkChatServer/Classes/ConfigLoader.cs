@@ -50,7 +50,7 @@ namespace HenkChat
                         MaxConnections = int.Parse(Line.Remove(0, 15));
                         if (MaxConnections < 0) MaxConnections = DEFAULT_MAXCONNECTIONS;
                     }
-                    catch { Functions.Error(new Exception("You entered a invalid MaxConnections count."), Server, false); Port = DEFAULT_PORT; }
+                    catch { Functions.Error(new Exception("You entered a invalid MaxConnections count."), Server, false); MaxConnections = DEFAULT_MAXCONNECTIONS; }
                 }
                 else if (Line.StartsWith("AdvancedLog="))
                 {
@@ -80,10 +80,10 @@ namespace HenkChat
             Console.ForegroundColor = ConsoleColor.White;
 
             Console.WriteLine("Enter a new password for this server:");
-            byte[] Password = new Rfc2898DeriveBytes(Console.ReadLine(), Salt, 50000).GetBytes(20);
+            byte[] Password = new Rfc2898DeriveBytes(Console.ReadLine(), Salt, 250000).GetBytes(20);
 
             Console.WriteLine("Enter a new admin password for this server:");
-            byte[] AdminPassword = new Rfc2898DeriveBytes(Console.ReadLine(), Salt, 50000).GetBytes(20);
+            byte[] AdminPassword = new Rfc2898DeriveBytes(Console.ReadLine(), Salt, 500000).GetBytes(20);
 
             int Port = 0;
             while (Port == 0)
@@ -103,7 +103,7 @@ namespace HenkChat
             File.CreateText(FolderPath).Close();
             string[] config = new string[] {
                 "#HenkChatServer config file",
-                "Name="+Path.GetFileName( Path.GetDirectoryName( FolderPath ) ),
+                "Name="+Path.GetFileName(Path.GetDirectoryName( FolderPath ) ),
                 "Port="+Port,
                 "MaxConnections="+DEFAULT_MAXCONNECTIONS,
                 "AdvancedLog="+(DEFAULT_ADVANCEDLOG?"true":"false"),

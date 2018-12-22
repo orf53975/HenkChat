@@ -13,6 +13,7 @@ namespace HenkChat
         public void Start(string Ip, int Port)
         {
             Console.WriteLine($"[Server {DateTime.Now.ToString("h:mm:ss")}] Starting NameServer...");
+
             _Server.Start(Ip,Port,MAXCONNECTIONS);
             _Server.DataReceived += DataReceived;
             if(Program.NameServerLogs)
@@ -33,6 +34,6 @@ namespace HenkChat
             else e.Reply(new byte[] { 0 });
         }
 
-        private void _Log(string Text)=> File.AppendAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "NameServerLog.txt"), $"[{DateTime.Now.ToString("yyyy-MM h:mm:ss")}] {Text}{Environment.NewLine}");
+        private void _Log(string Text) { try { File.AppendAllTextAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "NameServerLog.txt"), $"[{DateTime.Now.ToString("yyyy-MM h:mm:ss")}] {Text}{Environment.NewLine}"); } catch { } }
     }
 }

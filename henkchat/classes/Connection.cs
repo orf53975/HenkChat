@@ -14,14 +14,39 @@ namespace HenkChat
 
         public static int Connect(string ServerName, HenkTcpClient Client)
         {
-            if (!Client.Connect(IP, NAME_SERVER_PORT, TimeSpan.FromSeconds(TIMESPAN))) return 0;//could not connect to name server
+            if (ServerName.StartsWith("!"))
+            {
+                string[] Credentials = ServerName.Split('/');
+                if (Credentials.Length.Equals(2))
+                {
+                    int Port;
+                    if (!int.TryParse(Credentials[1], out Port)) return 2;
+                    return Client.Connect(Credentials[0].Remove(0, 1), Port, TimeSpan.FromSeconds(TIMESPAN)) ? 3 : 2;//2 = could not connect to server,3= ok
+                }
+                else if (Credentials.Length.Equals(3))
+                {           
+                    int Port;
+                    if (!int.TryParse(Credentials[1], out Port)) return 2;
+                    if (!Client.Connect(Credentials[0].Remove(0, 1), Port, TimeSpan.FromSeconds(TIMESPAN))) return 0;//could not connect to name server
 
-            var Reply = Client.WriteAndGetReply(new Rfc2898DeriveBytes(ServerName.ToLower(), new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }, 10000).GetBytes(20), TimeSpan.FromSeconds(TIMESPAN));
-            if (Reply == null) return 0;
-            else if (Reply.Data[0].Equals(0)) return 1;
-            int ServerPort = BitConverter.ToInt32(Reply.Data, 0);
+                    var Reply = Client.WriteAndGetReply(new Rfc2898DeriveBytes(Credentials[2].ToLower(), new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }, 10000).GetBytes(20), TimeSpan.FromSeconds(TIMESPAN));
+                    if (Reply == null) return 0;
+                    else if (Reply.Data[0].Equals(0)) return 1;
+                    int ServerPort = BitConverter.ToInt32(Reply.Data, 0);
+                    return Client.Connect(Credentials[0].Remove(0,1), ServerPort, TimeSpan.FromSeconds(TIMESPAN)) ? 3 : 2;//2 = could not connect to server,3= ok
+                }
+                else return 2;//could not connect to server, invalid credentials                    
+            }
+            else
+            {
+                if (!Client.Connect(IP, NAME_SERVER_PORT, TimeSpan.FromSeconds(TIMESPAN))) return 0;//could not connect to name server
 
-            return Client.Connect(IP, ServerPort, TimeSpan.FromSeconds(TIMESPAN)) ? 3 : 2;//2 = could not connect to server,3= ok
+                var Reply = Client.WriteAndGetReply(new Rfc2898DeriveBytes(ServerName.ToLower(), new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }, 10000).GetBytes(20), TimeSpan.FromSeconds(TIMESPAN));
+                if (Reply == null) return 0;
+                else if (Reply.Data[0].Equals(0)) return 1;
+                int ServerPort = BitConverter.ToInt32(Reply.Data, 0);
+                return Client.Connect(IP, ServerPort, TimeSpan.FromSeconds(TIMESPAN)) ? 3 : 2;//2 = could not connect to server,3= ok
+            }
         }
 
         public static int Establish(ref byte[] EncryptionKeyServer, ref byte[] Salt, HenkTcpClient Client, string Password, string UserName, RSAKey RSAKey)
@@ -32,7 +57,7 @@ namespace HenkChat
                 Client.SetEncryption(Aes.Create(), EncryptionKeyServer);
                 Salt = Client.WriteAndGetReply(new byte[] { 42, 2 }, TimeSpan.FromSeconds(1)).DecryptedData;
 
-                Rfc2898DeriveBytes HashedPassword = new Rfc2898DeriveBytes(Password, Salt, 50000);
+                Rfc2898DeriveBytes HashedPassword = new Rfc2898DeriveBytes(Password, Salt, 250000);
                 byte ValidPassword = Client.WriteAndGetReply(CombineBytes(new byte[] { 42, 3 }, HenkTcp.Encryption.Encrypt(Aes.Create(), HashedPassword.GetBytes(20), EncryptionKeyServer)), TimeSpan.FromSeconds(TIMESPAN)).Data[0];
 
                 if (ValidPassword.Equals(1))
@@ -54,14 +79,12 @@ namespace HenkChat
 
                 string Users = string.Empty;
                 for (int x = 0; x < Online; x++)
-                {
                     Users += ", " + AES256.decrypt(Client.WriteAndGetReply(CombineBytes(new byte[] { 42, 6, 1 }, BitConverter.GetBytes(x)), TimeSpan.FromSeconds(1)).Data, Password, Salt);
-                }
                 return $"({Online}) {Users.Remove(0, 2)}";
             }
             if (Text.StartsWith("!admin "))
             {
-                Rfc2898DeriveBytes HashedAdminPassword = new Rfc2898DeriveBytes(Text.Remove(0, 7), Salt, 50000);
+                Rfc2898DeriveBytes HashedAdminPassword = new Rfc2898DeriveBytes(Text.Remove(0, 7), Salt, 500000);
                 return _SendCommand(CombineBytes(new byte[] { 42, 6 }, HenkTcp.Encryption.Encrypt(Aes.Create(), Encoding.UTF8.GetBytes("!admin " + Convert.ToBase64String(HashedAdminPassword.GetBytes(20))), EncryptionKeyServer)), Client);
             }
             else if (Text.StartsWith("!kick ")) return _SendCommand(CombineBytes(new byte[] { 42, 6, 2 }, AES256.encrypt(Text.Remove(0, 6), Password, Salt)), Client);

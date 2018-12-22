@@ -84,12 +84,12 @@ namespace HenkChat
                     catch { }
                 }
 
-                Messages_LV.Items.Add(Functions.CreateMessageBox($"Welcome to {ServerName_TB.Text}.", UserName_TB.Text));
+                Messages_LV.Items.Add(Functions.CreateMessageBox($"Welcome to {ServerName_TB.Text.ToLower()}.", UserName_TB.Text));
             }
             catch { _ShowPopup("Error while connecting to the server."); _OnDisconnect(null, null); }
 
-            Chat_GRD.Visibility = Visibility.Visible;
             Connect_GRD.Visibility = Visibility.Collapsed;
+            Chat_GRD.Visibility = Visibility.Visible;
 
             _Client.DataReceived += _DataReceived;
             _Client.OnDisconnect += _OnDisconnect;

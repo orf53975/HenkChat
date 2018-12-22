@@ -44,24 +44,27 @@ namespace HenkChat
                 ClientHandler ClientHandler = new ClientHandler(this);
                 Server.ClientConnected += ClientHandler.ClientConnected;
                 Server.ClientDisconnected += ClientHandler.ClientDisconnected;
-                Server.DataReceived += new DataHandler(this,ServerFolder).DataReceived;
+                Server.DataReceived += new DataHandler(this, ServerFolder).DataReceived;
                 Server.OnError += OnError;
-                if(AdvancedLog)
+                if (AdvancedLog)
                 {
-                    Server.ClientConnected += (object sender, TcpClient e) => Functions.Log($"{((IPEndPoint)e.Client.RemoteEndPoint).Address.ToString()} connected",this);
+                    Server.ClientConnected += (object sender, TcpClient e) => Functions.Log($"{((IPEndPoint)e.Client.RemoteEndPoint).Address.ToString()} connected", this);
                     Server.ClientDisconnected += (object sender, TcpClient e) => Functions.Log($"{((IPEndPoint)e.Client.RemoteEndPoint).Address.ToString()} disconnected", this);
                     Server.DataReceived += (object sender, Message e) => Functions.Log($"{((IPEndPoint)e.TcpClient.Client.RemoteEndPoint).Address.ToString()} sends {e.Data.Length} bytes", this);
                 }
 
-                Functions.Print("Starting server...",this,ConsoleColor.White);                
+                Functions.Print("Starting server...", this, ConsoleColor.White);
                 Server.Start(Ip, Port, MaxConnections);
-                if (Server != null) { Functions.Print($"Server is online on {Ip}:{Port}", this, ConsoleColor.Green); Program.Servers.Add(Encoding.UTF8.GetString(new Rfc2898DeriveBytes(S_Name.ToLower(), new byte[] { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 }, 10000).GetBytes(20)), Port); }
+                string Name = Encoding.UTF8.GetString(new Rfc2898DeriveBytes(S_Name.ToLower(), new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }, 10000).GetBytes(20));
+                if (Program.Servers.ContainsKey(Name)) { Functions.Error(new Exception("2 servers with the same name detected, canceling server..."),this); Environment.Exit(1); }
+                else Program.Servers.Add(Name, Port);
+                if (Server != null) Functions.Print($"Server is online on {Ip}/{Port}", this, ConsoleColor.Green);
 
                 await Task.Delay(-1);
             }
             catch (Exception ex) { Functions.Error(ex, this, true); }
         }
 
-        public void OnError(object sender, Exception e) => Functions.Error(e, this, true);       
+        public void OnError(object sender, Exception e) => Functions.Error(e, this, true);
     }
 }
