@@ -7,4 +7,7 @@ HenkChat isn't published yet.
 - xaml design
 - emoticons
 - adding chat between 2 users with a !say command
-- mulitmedia
+- mulitmedia support
+
+# contributing
+Dm me at discord(henkje#0033) or send my a email(henkje@pm.me).
