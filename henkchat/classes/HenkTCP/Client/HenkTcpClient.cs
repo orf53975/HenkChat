@@ -20,8 +20,8 @@ namespace HenkTcp
 
         private byte[] _Buffer;
 
-        public bool Connect(string Ip, int Port, TimeSpan Timeout, int BufferSize = 1024) { return Connect(Ip, Port, Timeout, null, null, BufferSize); }
-        public bool Connect(string Ip, int Port, TimeSpan Timeout, string Password, string Salt = "HenkTcpSalt", int Iterations = 10000, int KeySize = 0, int BufferSize = 1024) { return Connect(Ip, Port, Timeout, Aes.Create(), Encryption.CreateKey(Aes.Create(), Password, Salt, Iterations, KeySize), BufferSize); }
+        public bool Connect(string Ip, int Port, TimeSpan Timeout, int BufferSize = 1024) => Connect(Ip, Port, Timeout, null, null, BufferSize);
+        public bool Connect(string Ip, int Port, TimeSpan Timeout, string Password, string Salt = "HenkTcpSalt", int Iterations = 10000, int KeySize = 0, int BufferSize = 1024) => Connect(Ip, Port, Timeout, Aes.Create(), Encryption.CreateKey(Aes.Create(), Password, Salt, Iterations, KeySize), BufferSize);
         public bool Connect(string Ip, int Port, TimeSpan Timeout, SymmetricAlgorithm Algorithm, byte[] EncryptionKey, int BufferSize = 1024)
         {
             if (string.IsNullOrEmpty(Ip)) throw new Exception("Invalid ip");
@@ -34,9 +34,7 @@ namespace HenkTcp
             sw.Start();
 
             while (!TcpClient.Client.Connected && sw.Elapsed < Timeout)
-            {
                 Task.Delay(5).Wait();
-            }
 
             if (TcpClient.Connected)
             {
@@ -50,7 +48,7 @@ namespace HenkTcp
             else return false;
         }
 
-        public void SetEncryption(string Password, string Salt = "HenkTcpSalt", int Iterations = 10000, int KeySize = 0) { SetEncryption(Aes.Create(), Encryption.CreateKey(Aes.Create(), Password, Salt, Iterations, KeySize)); }
+        public void SetEncryption(string Password, string Salt = "HenkTcpSalt", int Iterations = 10000, int KeySize = 0) => SetEncryption(Aes.Create(), Encryption.CreateKey(Aes.Create(), Password, Salt, Iterations, KeySize));
         public void SetEncryption(SymmetricAlgorithm Algorithm, byte[] EncryptionKey)
         {
             _Algorithm = Algorithm;
@@ -68,28 +66,25 @@ namespace HenkTcp
 
         public bool IsConnected { get { return TcpClient != null; } }
 
-        public void Write(string Data) { Write(Encoding.UTF8.GetBytes(Data)); }
+        public void Write(string Data) => Write(Encoding.UTF8.GetBytes(Data));
         public void Write(byte[] Data)
         {
-            try
-            {
-                TcpClient.GetStream().Write(Data, 0, Data.Length);
-            }
+            try { TcpClient.GetStream().Write(Data, 0, Data.Length); }
             catch (Exception ex) { OnError(this, ex); }
         }
 
-        public void WriteEncrypted(string Data) { WriteEncrypted(Encoding.UTF8.GetBytes(Data)); }
+        public void WriteEncrypted(string Data) => WriteEncrypted(Encoding.UTF8.GetBytes(Data));
         public void WriteEncrypted(byte[] Data)
         {
             if (_EncryptionKey == null || _Algorithm == null) { NotifyOnError(new Exception("Could not send message: Alghoritm/Key not set")); return; }
             Write(Encryption.Encrypt(_Algorithm, Data, _EncryptionKey));
         }
 
-        public Message WriteAndGetReply(string Text, TimeSpan Timeout) { return WriteAndGetReply(Encoding.UTF8.GetBytes(Text), Timeout); }
+        public Message WriteAndGetReply(string Text, TimeSpan Timeout) => WriteAndGetReply(Encoding.UTF8.GetBytes(Text), Timeout);
         public Message WriteAndGetReply(byte[] Data, TimeSpan Timeout)
         {
             Message Reply = null;
-            void Event(object sender, Message e){ Reply = e;    DataReceived -= Event;   };
+            void Event(object sender, Message e) { Reply = e; DataReceived -= Event; };
 
             DataReceived += Event;
             Write(Data);
@@ -98,13 +93,12 @@ namespace HenkTcp
             sw.Start();
 
             while (Reply == null && sw.Elapsed < Timeout)
-            {
                 Task.Delay(1).Wait();
-            }
+
             return Reply;
         }
 
-        public Message WriteAndGetReplyEncrypted(string Text, TimeSpan Timeout) { return WriteAndGetReplyEncrypted(Encoding.UTF8.GetBytes(Text), Timeout); }
+        public Message WriteAndGetReplyEncrypted(string Text, TimeSpan Timeout) => WriteAndGetReplyEncrypted(Encoding.UTF8.GetBytes(Text), Timeout);
         public Message WriteAndGetReplyEncrypted(byte[] Data, TimeSpan Timeout)
         {
             if (_EncryptionKey == null || _Algorithm == null) { NotifyOnError(new Exception("Could not send message: Alghoritm/Key not set")); return null; }
