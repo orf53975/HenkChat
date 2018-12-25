@@ -10,4 +10,4 @@ HenkChat isn't published yet.
 - mulitmedia support
 
 # contributing
-Dm me at discord(henkje#0033) or send my a email(henkje@pm.me).
+Contact me at discord(henkje#0033) or send my a email(henkje@pm.me).
