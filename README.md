@@ -2,7 +2,7 @@
 HenkChat is a end to end group chat.
 HenkChat has his own protocol. The protocol uses AES 256(with and without random IV) with RSA and PBKDF2.
 HenkChat isn't published yet.
-![Screenshot](Screenshot.png)
+![Screenshot](Screenshot.PNG)
 
 # Todo
 - emoticons
