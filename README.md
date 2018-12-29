@@ -4,9 +4,7 @@ HenkChat has his own protocol. The protocol uses AES 256(with and without random
 HenkChat isn't published yet.
 
 # Todo
-- xaml design
 - emoticons
-- adding chat between 2 users with a !say command
 - mulitmedia support
 
 # contributing
